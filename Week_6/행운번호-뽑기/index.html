@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>행운번호 뽑기</title>
+  <meta name="description" content="고민될 때, 버튼 한 번으로 번호 6개. 재미로 쓰는 깔끔한 로또 번호 추첨기.">
+  <meta property="og:title" content="행운번호 뽑기">
+  <meta property="og:description" content="고민될 때, 버튼 한 번으로 번호 6개">
+  <meta property="og:type" content="website">
+  <!-- 인라인 SVG 파비콘 (외부 이미지 파일 없음) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%231B6F73'/%3E%3Ccircle cx='38' cy='36' r='30' fill='%23ffffff' opacity='0.15'/%3E%3Cpath d='M50 20 L58 38 L78 40 L63 54 L68 74 L50 63 L32 74 L37 54 L22 40 L42 38 Z' fill='%23F2CC8F'/%3E%3C/svg%3E">
+  
+  <!-- 웹 폰트 (Pretendard) -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+
+  <style>
+    /* 테마 색상 변수 정의
+       #1B6F73: 딥 틸 (주요 버튼, 텍스트 악센트)
+       #E07A5F: 테라코타 코랄 (서브 포인트)
+       #F2CC8F: 소프트 웜 골드 (배지, 하이라이트)
+       #F4F1DE: 부드러운 크림 (배경)
+    */
+    :root {
+      --color-primary: #1B6F73;
+      --color-primary-dark: #145558;
+      --color-coral: #E07A5F;
+      --color-coral-dark: #cc654a;
+      --color-gold: #F2CC8F;
+      --color-bg: #F4F1DE;
+      --color-white: #ffffff;
+      --color-text-main: #264653;
+      --color-text-muted: #6b7c85;
+
+      /* 공 색상 */
+      --ball-yellow-start: #ffc93c;
+      --ball-yellow-end: #e09f00;
+      --ball-blue-start: #3a86ff;
+      --ball-blue-end: #1a56db;
+      --ball-red-start: #ff5964;
+      --ball-red-end: #d62231;
+      --ball-gray-start: #9aa4af;
+      --ball-gray-end: #616e7c;
+      --ball-green-start: #38b000;
+      --ball-green-end: #1e7005;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      line-height: 1.5;
+      padding: 24px 16px;
+    }
+
+    /* 레이아웃 컨테이너 */
+    .container {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 1. 헤더 */
+    .header {
+      text-align: center;
+      margin-top: 16px;
+      margin-bottom: 32px;
+      width: 100%;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #1B6F73 0%, #248286 100%);
+      box-shadow: 0 8px 18px rgba(27, 111, 115, 0.22);
+      margin-bottom: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .logo-badge:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .logo-svg {
+      width: 36px;
+      height: 36px;
+    }
+
+    .service-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+    }
+
+    .service-desc {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      letter-spacing: -0.01em;
+    }
+
+    /* 2. 뽑기 버튼 */
+    .draw-btn-wrap {
+      width: 100%;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .draw-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      color: var(--color-white);
+      border: none;
+      border-radius: 18px;
+      padding: 18px 24px;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 20px rgba(27, 111, 115, 0.28), 0 2px 6px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    .draw-btn:hover {
+      background: linear-gradient(135deg, #228489 0%, var(--color-primary) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(27, 111, 115, 0.32), 0 3px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .draw-btn:active {
+      transform: translateY(1px) scale(0.985);
+      box-shadow: 0 4px 10px rgba(27, 111, 115, 0.2);
+    }
+
+    .draw-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.4s ease;
+    }
+
+    .draw-btn.rotating svg {
+      transform: rotate(360deg);
+    }
+
+    /* 3. 결과 흰색 카드 */
+    .result-card {
+      width: 100%;
+      background-color: var(--color-white);
+      border-radius: 24px;
+      padding: 34px 14px;
+      min-height: 148px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 32px rgba(27, 111, 115, 0.08), 0 2px 6px rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(242, 204, 143, 0.35);
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    /* 초기 안내 문구 */
+    .empty-state {
+      font-size: 15px;
+      font-weight: 500;
+      color: #8c9ba5;
+      text-align: center;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .empty-state-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-gold);
+      border-radius: 50%;
+    }
+
+    /* 번호 공 목록 가로 한 줄 정렬 */
+    .balls-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 460px;
+      gap: 8px;
+    }
+
+    /* 번호 공 스타일 (기존 54px -> 1.3배 확대 70px) */
+    .ball {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 26px;
+      font-weight: 800;
+      position: relative;
+      user-select: none;
+      flex-shrink: 0;
+      /* 입체감 있는 3D 볼 효과: 그림자 + 반사광 */
+      box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.2),
+        0 3px 6px rgba(0, 0, 0, 0.14),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.24);
+      /* 흰색 글자 가독성을 위한 은은한 텍스트 섀도우 */
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      /* 팝인 애니메이션 */
+      opacity: 0;
+      transform: scale(0.3) translateY(12px);
+      animation: ballPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* 공 상단 하이라이트 (구체 광택 효과 - 1.3배 비례 확대) */
+    .ball::before {
+      content: "";
+      position: absolute;
+      top: 6px;
+      left: 13px;
+      width: 18px;
+      height: 10px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
+      pointer-events: none;
+    }
+
+    /* 공 색상별 그라데이션 */
+    /* 1 ~ 10: 노랑 */
+    .ball-yellow {
+      background: radial-gradient(circle at 35% 30%, #ffd666 0%, #f4b400 65%, #c78d00 100%);
+      text-shadow: 0 1px 3px rgba(133, 85, 0, 0.7);
+    }
+
+    /* 11 ~ 20: 파랑 */
+    .ball-blue {
+      background: radial-gradient(circle at 35% 30%, #5dade2 0%, #2980b9 65%, #1a5276 100%);
+    }
+
+    /* 21 ~ 30: 빨강 */
+    .ball-red {
+      background: radial-gradient(circle at 35% 30%, #f1948a 0%, #e74c3c 65%, #922b21 100%);
+    }
+
+    /* 31 ~ 40: 회색 */
+    .ball-gray {
+      background: radial-gradient(circle at 35% 30%, #bdc3c7 0%, #7f8c8d 65%, #4a5455 100%);
+    }
+
+    /* 41 ~ 45: 초록 */
+    .ball-green {
+      background: radial-gradient(circle at 35% 30%, #58d68d 0%, #27ae60 65%, #196f3d 100%);
+    }
+
+    /* 순차적 등장 딜레이 */
+    .ball:nth-child(1) { animation-delay: 0.05s; }
+    .ball:nth-child(2) { animation-delay: 0.15s; }
+    .ball:nth-child(3) { animation-delay: 0.25s; }
+    .ball:nth-child(4) { animation-delay: 0.35s; }
+    .ball:nth-child(5) { animation-delay: 0.45s; }
+    .ball:nth-child(6) { animation-delay: 0.55s; }
+
+    @keyframes ballPop {
+      0% {
+        opacity: 0;
+        transform: scale(0.3) translateY(12px);
+      }
+      70% {
+        opacity: 1;
+        transform: scale(1.12) translateY(-2px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* 4. 결과 아래 복사 버튼 */
+    .copy-btn-wrap {
+      width: 100%;
+      margin-bottom: 24px;
+    }
+
+    .copy-btn {
+      width: 100%;
+      background-color: #ffffff;
+      color: var(--color-text-main);
+      border: 1.5px solid #dbe2e6;
+      border-radius: 14px;
+      padding: 13px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .copy-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .copy-btn:not(:disabled):hover {
+      background-color: #f8fafb;
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .copy-btn:not(:disabled):active {
+      transform: translateY(1px);
+    }
+
+    /* 비활성화 상태 (처음 열었을 때 누를 수 없게 흐리게 표시) */
+    .copy-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: #e5eaed;
+      color: #9aa8b2;
+      background-color: #f8fafb;
+      box-shadow: none;
+    }
+
+    /* 복사 성공 상태 (2초간 유지) */
+    .copy-btn.copied {
+      background-color: #ecfdf5;
+      border-color: #10b981;
+      color: #047857;
+    }
+
+    /* 5. 안내 문구 */
+    .notice {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      text-align: center;
+      margin-bottom: 36px;
+      line-height: 1.6;
+      word-break: keep-all;
+    }
+
+    /* 6. 푸터 */
+    .footer {
+      width: 100%;
+      text-align: center;
+      font-size: 13px;
+      color: #8c9ba5;
+      padding-top: 16px;
+      border-top: 1px solid rgba(27, 111, 115, 0.1);
+      margin-top: auto;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .footer-divider {
+      color: #cbd5e1;
+    }
+
+    /* ============================================================
+       반응형 미디어 쿼리
+       - 컴퓨터(1024px 이상): 폭 480px 가운데 배치
+       - 태블릿(768px ~ 1023px): 폭 480px, 좌우 여백 축소
+       - 휴대폰(767px 이하): 화면 꽉 채우며 공 6개가 한 줄에 쏙 들어가도록
+       ============================================================ */
+    @media (max-width: 767px) {
+      body {
+        padding: 16px 12px;
+      }
+
+      .header {
+        margin-top: 8px;
+        margin-bottom: 24px;
+      }
+
+      .logo-badge {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        margin-bottom: 12px;
+      }
+
+      .logo-svg {
+        width: 30px;
+        height: 30px;
+      }
+
+      .service-title {
+        font-size: 24px;
+      }
+
+      .service-desc {
+        font-size: 14px;
+      }
+
+      .draw-btn {
+        padding: 16px 20px;
+        font-size: 18px;
+        border-radius: 16px;
+      }
+
+      .result-card {
+        padding: 24px 8px;
+        min-height: 125px;
+        border-radius: 20px;
+      }
+
+      /* 휴대폰 화면에서 6개 공이 가로 한 줄에 다 들어가도록 유연하게 조절 (1.3배 확대 반영) */
+      .balls-row {
+        gap: clamp(4px, 1.5vw, 8px);
+        justify-content: space-evenly;
+      }
+
+      .ball {
+        width: clamp(48px, 14.2vw, 64px);
+        height: clamp(48px, 14.2vw, 64px);
+        font-size: clamp(18px, 5.2vw, 24px);
+      }
+
+      .ball::before {
+        top: 4px;
+        left: 8px;
+        width: 14px;
+        height: 8px;
+      }
+    }
+
+    /* 초소형 휴대폰 (가로 340px 이하) 추가 최적화 (1.3배 확대 반영) */
+    @media (max-width: 350px) {
+      .balls-row {
+        gap: 3px;
+      }
+      .ball {
+        width: 44px;
+        height: 44px;
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- 1. 헤더: 가운데에 로고와 서비스 이름, 그 아래 한 줄 소개 -->
+    <header class="header">
+      <div class="logo-badge" aria-hidden="true">
+        <!-- 인라인 SVG 로고: 행운의 클로버 & 별 모티프 -->
+        <svg class="logo-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="22" fill="#1B6F73" />
+          <path d="M24 10C24 10 28 17 35 17C35 24 24 26 24 26C24 26 13 24 13 17C20 17 24 10 24 10Z" fill="#F2CC8F" />
+          <path d="M24 38C24 38 28 31 35 31C35 24 24 22 24 22C24 22 13 24 13 31C20 31 24 38 24 38Z" fill="#F2CC8F" opacity="0.9" />
+          <circle cx="24" cy="24" r="4.5" fill="#E07A5F" />
+        </svg>
+      </div>
+      <h1 class="service-title">행운번호 뽑기</h1>
+      <p class="service-desc">고민될 때, 버튼 한 번으로 번호 6개</p>
+    </header>
+
+    <!-- 2. 뽑기 버튼: 화면 가운데에 크게 "번호 뽑기" 버튼 -->
+    <div class="draw-btn-wrap">
+      <button type="button" id="drawBtn" class="draw-btn" aria-label="로또 번호 6개 뽑기">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+        </svg>
+        <span id="drawBtnText">번호 뽑기</span>
+      </button>
+    </div>
+
+    <!-- 3. 결과: 흰색 카드 안에 번호 공 6개를 가로 한 줄로 나란히 -->
+    <main class="result-card" id="resultCard" aria-live="polite">
+      <!-- 처음 열었을 때 안내 텍스트 -->
+      <div class="empty-state" id="emptyState">
+        <span class="empty-state-dot"></span>
+        <span>번호 뽑기 버튼을 눌러 주세요</span>
+      </div>
+      <!-- 번호 뽑기 후 동적으로 들어가는 컨테이너 -->
+      <div class="balls-row" id="ballsRow" style="display: none;"></div>
+    </main>
+
+    <!-- 4. 결과 아래 버튼: "결과 복사" 버튼 -->
+    <div class="copy-btn-wrap">
+      <button type="button" id="copyBtn" class="copy-btn" disabled aria-label="추첨된 번호 결과 복사하기">
+        <svg viewBox="0 0 24 24" aria-hidden="true" id="copyIcon">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span id="copyBtnText">결과 복사</span>
+      </button>
+    </div>
+
+    <!-- 5. 안내 문구 -->
+    <p class="notice">번호는 무작위로 뽑으며, 당첨과는 관계없습니다.</p>
+  </div>
+
+  <!-- 6. 푸터: 서비스 이름과 만든 사람 -->
+  <footer class="footer">
+    <div class="footer-content">
+      <span>행운번호 뽑기</span>
+      <span class="footer-divider">·</span>
+      <span>만든 사람: 행운메이커</span>
+    </div>
+  </footer>
+
+  <!-- 5. 기능 스크립트 (순수 바닐라 JS, 외부 라이브러리 없음) -->
+  <script>
+    (function () {
+      'use strict';
+
+      // 요소 참조
+      const drawBtn = document.getElementById('drawBtn');
+      const drawBtnText = document.getElementById('drawBtnText');
+      const emptyState = document.getElementById('emptyState');
+      const ballsRow = document.getElementById('ballsRow');
+      const copyBtn = document.getElementById('copyBtn');
+      const copyBtnText = document.getElementById('copyBtnText');
+
+      // 상태값
+      let currentNumbers = [];
+      let copyResetTimer = null;
+      let isFirstDraw = true;
+
+      /**
+       * 번호 범위에 따른 공 색상 클래스 반환
+       * 1 ~ 10: 노랑
+       * 11 ~ 20: 파랑
+       * 21 ~ 30: 빨강
+       * 31 ~ 40: 회색
+       * 41 ~ 45: 초록
+       */
+      function getBallColorClass(num) {
+        if (num <= 10) return 'ball-yellow';
+        if (num <= 20) return 'ball-blue';
+        if (num <= 30) return 'ball-red';
+        if (num <= 40) return 'ball-gray';
+        return 'ball-green';
+      }
+
+      /**
+       * 1부터 45까지 서로 겹치지 않는 무작위 6개 수 추출 후 오름차순 정렬
+       */
+      function pickLottoNumbers() {
+        const numbers = [];
+        while (numbers.length < 6) {
+          // 1 ~ 45 난수 생성
+          const rand = Math.floor(Math.random() * 45) + 1;
+          if (!numbers.includes(rand)) {
+            numbers.push(rand);
+          }
+        }
+        // 작은 수부터 큰 수 순서로 정렬
+        return numbers.sort(function (a, b) {
+          return a - b;
+        });
+      }
+
+      /**
+       * 화면에 번호 공 6개 렌더링
+       */
+      function renderBalls(numbers) {
+        // 기존 공 비우기
+        ballsRow.innerHTML = '';
+        ballsRow.style.display = 'flex';
+        emptyState.style.display = 'none';
+
+        // 6개 공 생성 및 순차적 애니메이션 적용
+        numbers.forEach(function (num, index) {
+          const ball = document.createElement('div');
+          ball.className = 'ball ' + getBallColorClass(num);
+          // 한 자리 수도 그대로 표시 (예: 3)
+          ball.textContent = String(num);
+          // 순차 등장 딜레이 인라인 보정 (0.08초 간격)
+          ball.style.animationDelay = (index * 0.08) + 's';
+          ballsRow.appendChild(ball);
+        });
+      }
+
+      /**
+       * "번호 뽑기" / "다시 뽑기" 핸들러
+       */
+      function handleDraw() {
+        // 버튼 회전 효과
+        drawBtn.classList.add('rotating');
+        setTimeout(function () {
+          drawBtn.classList.remove('rotating');
+        }, 400);
+
+        // 1. 번호 6개 뽑기 (중복 없음, 오름차순)
+        currentNumbers = pickLottoNumbers();
+
+        // 2. 화면에 번호 공 렌더링
+        renderBalls(currentNumbers);
+
+        // 3. 뽑은 뒤 버튼 글자를 "다시 뽑기"로 변경
+        if (isFirstDraw) {
+          drawBtnText.textContent = '다시 뽑기';
+          isFirstDraw = false;
+        }
+
+        // 4. "결과 복사" 버튼 활성화
+        copyBtn.disabled = false;
+
+        // 복사 완료 상태가 유지 중이었다면 초기화
+        if (copyResetTimer) {
+          clearTimeout(copyResetTimer);
+          copyResetTimer = null;
+        }
+        copyBtn.classList.remove('copied');
+        copyBtnText.textContent = '결과 복사';
+      }
+
+      /**
+       * 2자리 형식 패딩 문자열 변환 (예: 3 -> "03", 11 -> "11")
+       */
+      function padZero(num) {
+        return num < 10 ? '0' + num : String(num);
+      }
+
+      /**
+       * "결과 복사" 클릭 핸들러
+       * 형식: 03 11 19 27 34 42
+       */
+      function handleCopy() {
+        if (!currentNumbers || currentNumbers.length !== 6) return;
+
+        // 복사할 텍스트 형식: "03 11 19 27 34 42"
+        const formattedText = currentNumbers.map(padZero).join(' ');
+
+        // 클립보드 복사 함수 (navigator.clipboard 및 fallback 지원)
+        function copyToClipboard(text) {
+          if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text);
+          } else {
+            // file:// 또는 HTTP 환경 호환 fallback
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            return new Promise(function (resolve, reject) {
+              try {
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                if (successful) resolve();
+                else reject(new Error('copy command failed'));
+              } catch (err) {
+                document.body.removeChild(textArea);
+                reject(err);
+              }
+            });
+          }
+        }
+
+        copyToClipboard(formattedText).then(function () {
+          // 버튼 글자를 2초 동안 "복사했어요"로 변경
+          copyBtnText.textContent = '복사했어요';
+          copyBtn.classList.add('copied');
+
+          if (copyResetTimer) {
+            clearTimeout(copyResetTimer);
+          }
+
+          copyResetTimer = setTimeout(function () {
+            copyBtnText.textContent = '결과 복사';
+            copyBtn.classList.remove('copied');
+            copyResetTimer = null;
+          }, 2000);
+        }).catch(function (err) {
+          console.error('클립보드 복사 실패:', err);
+          // 실패 시에도 사용자 피드백
+          copyBtnText.textContent = '복사 실패';
+          setTimeout(function () {
+            copyBtnText.textContent = '결과 복사';
+          }, 1500);
+        });
+      }
+
+      // 이벤트 리스너 등록
+      drawBtn.addEventListener('click', handleDraw);
+      copyBtn.addEventListener('click', handleCopy);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "조씨네 밥상",
+  "description": "매일 매일 직접 정성으로 만든 밥상 - 대전 유성구 맛집 조씨네 밥상 소개",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

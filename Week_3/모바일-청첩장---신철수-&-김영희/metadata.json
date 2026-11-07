@@ -1,0 +1,6 @@
+{
+  "name": "모바일 청첩장 - 신철수 & 김영희",
+  "description": "2027년 5월 8일 대전 라도무스 아트센터 신철수와 김영희의 모바일 청첩장",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
